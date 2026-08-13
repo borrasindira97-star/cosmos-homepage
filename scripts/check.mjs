@@ -1,4 +1,5 @@
 import { readFile, stat } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
 
 const manifest = JSON.parse(await readFile("manifest.json", "utf8"));
 const pkg = JSON.parse(await readFile("package.json", "utf8"));
@@ -22,4 +23,5 @@ if (/console\./.test(`${source}\n${model}`)) throw new Error("production source 
 if (/registry\.npmmirror\.com/.test(lock)) throw new Error("lockfile must use the official npm registry");
 if (/detachLeavesOfType/.test(source)) throw new Error("unload must not detach user leaves");
 if (/softprops\/action-gh-release/.test(await readFile(".github/workflows/release.yml", "utf8"))) throw new Error("release workflow must not require a third-party publishing action");
+if (spawnSync("git", ["check-ignore", "src/main.js"]).status === 0) throw new Error("source entry must not be ignored by Git");
 console.log("public release checks passed");

@@ -17,7 +17,7 @@ test("public source has no network, private path, or local service coupling", as
 test("manifest is an installable non-desktop-only community plugin", async () => {
   const manifest = JSON.parse(await readFile("manifest.json", "utf8"));
   assert.equal(manifest.id, "cosmos-homepage");
-  assert.equal(manifest.version, "1.0.1");
+  assert.equal(manifest.version, "1.0.2");
   assert.equal(manifest.isDesktopOnly, false);
   assert.ok(manifest.description.length <= 250);
 });
@@ -26,4 +26,10 @@ test("release automation uses GitHub's bundled CLI without a third-party publish
   const workflow = await readFile(".github/workflows/release.yml", "utf8");
   assert.match(workflow, /gh release create/);
   assert.doesNotMatch(workflow, /softprops\/action-gh-release/);
+});
+
+test("gitignore excludes only the root bundle, not the source entry", async () => {
+  const ignore = await readFile(".gitignore", "utf8");
+  assert.match(ignore, /^\/main\.js$/m);
+  assert.doesNotMatch(ignore, /^main\.js$/m);
 });
