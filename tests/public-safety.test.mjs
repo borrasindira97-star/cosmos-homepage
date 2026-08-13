@@ -10,14 +10,16 @@ test("public source has no network, private path, or local service coupling", as
   assert.doesNotMatch(source, /\bfetch\s*\(|requestUrl\s*\(/);
   assert.doesNotMatch(source, /innerHTML\s*=/);
   assert.doesNotMatch(source, /internalPlugins|eState/);
-  assert.doesNotMatch(source, /\.style(?:\.|\[)/);
+  const styleLines = source.split("\n").filter((line) => /\.style(?:\.|\[)/.test(line));
+  assert.ok(styleLines.length >= 4);
+  assert.ok(styleLines.every((line) => /this\.contentEl\.style\.(?:setProperty|removeProperty)\("--cosmos-pointer-[xy]"/.test(line)));
   assert.doesNotMatch(source, /console\./);
 });
 
 test("manifest is an installable non-desktop-only community plugin", async () => {
   const manifest = JSON.parse(await readFile("manifest.json", "utf8"));
   assert.equal(manifest.id, "cosmos-homepage");
-  assert.equal(manifest.version, "1.0.6");
+  assert.equal(manifest.version, "1.1.0");
   assert.equal(manifest.isDesktopOnly, false);
   assert.ok(manifest.description.length <= 250);
 });
@@ -25,6 +27,30 @@ test("manifest is an installable non-desktop-only community plugin", async () =>
 test("public styles avoid important overrides", async () => {
   const styles = await readFile("styles.css", "utf8");
   assert.doesNotMatch(styles, /!important/);
+});
+
+test("full Cosmos edition keeps the signature boards and motion fallback", async () => {
+  const source = await readFile("src/main.js", "utf8");
+  const styles = await readFile("styles.css", "utf8");
+  for (const token of ["cosmos-edition-archive", "cosmos-edition-constellation", "cosmos-edition-decisions", "cosmos-edition-mission", "cosmos-edition-belt"]) {
+    assert.match(source, new RegExp(token));
+    assert.match(styles, new RegExp(token));
+  }
+  assert.match(styles, /prefers-reduced-motion: reduce/);
+  assert.match(source, /pointermove/);
+});
+
+test("visual gallery harness imports the production view instead of duplicating its layout", async () => {
+  const demo = await readFile("scripts/demo-server.mjs", "utf8");
+  assert.match(demo, /entryPoints: \["src\/main\.js"\]/);
+  assert.match(demo, /CosmosPublic\.CosmosHomepageView/);
+  assert.doesNotMatch(demo, /cosmos-edition-(?:archive|constellation|decisions|mission|belt)/);
+});
+
+test("source navigation remains bound to Markdown files", async () => {
+  const source = await readFile("src/main.js", "utf8");
+  assert.match(source, /file\?\.path\?\.endsWith\?\.\("\.md"\)/);
+  assert.match(source, /leaf\.openFile\(file\)/);
 });
 
 test("release automation uses GitHub's bundled CLI without a third-party publisher", async () => {
@@ -51,6 +77,7 @@ test("README product gallery is complete and all linked screenshots exist", asyn
     "assets/focus-orbit.png",
     "assets/activity-calendar.png",
     "assets/knowledge-atlas.png",
+    "assets/cosmos-homepage-mobile.png",
   ];
 
   for (const screenshot of screenshots) {

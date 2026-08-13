@@ -24,7 +24,7 @@ function button(parent, label, cls, handler) {
   return node;
 }
 
-class CosmosHomepageView extends ItemView {
+export class CosmosHomepageView extends ItemView {
   constructor(leaf, plugin) {
     super(leaf);
     this.plugin = plugin;
@@ -35,6 +35,8 @@ class CosmosHomepageView extends ItemView {
     this.selectedDay = localDay(new Date());
     this.currentBoard = "overview";
     this.refreshTimer = null;
+    this.clockTimer = null;
+    this.pointerHandler = null;
   }
 
   getViewType() { return VIEW_TYPE; }
@@ -43,6 +45,7 @@ class CosmosHomepageView extends ItemView {
 
   async onOpen() {
     this.contentEl.addClass("cosmos-homepage-view");
+    this.startPointerGlow();
     this.registerVaultEvents();
     this.render();
   }
@@ -50,9 +53,31 @@ class CosmosHomepageView extends ItemView {
   async onClose() {
     this.stopTimer();
     if (this.refreshTimer) window.clearTimeout(this.refreshTimer);
+    if (this.clockTimer) window.clearInterval(this.clockTimer);
     this.refreshTimer = null;
+    this.clockTimer = null;
+    if (this.pointerHandler) this.contentEl.removeEventListener("pointermove", this.pointerHandler);
+    this.pointerHandler = null;
+    this.contentEl.style.removeProperty("--cosmos-pointer-x");
+    this.contentEl.style.removeProperty("--cosmos-pointer-y");
     for (const dispose of this.disposers.splice(0)) dispose();
     clear(this.contentEl);
+  }
+
+  startPointerGlow() {
+    if (this.pointerHandler) return;
+    this.pointerHandler = (event) => {
+      const bounds = this.contentEl.getBoundingClientRect();
+      this.contentEl.style.setProperty("--cosmos-pointer-x", `${event.clientX - bounds.left}px`);
+      this.contentEl.style.setProperty("--cosmos-pointer-y", `${event.clientY - bounds.top}px`);
+    };
+    this.contentEl.addEventListener("pointermove", this.pointerHandler, { passive: true });
+  }
+
+  updateClock() {
+    const now = new Date();
+    this.clockTime?.setText(now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }));
+    this.clockDate?.setText(now.toLocaleDateString("en-US", { month: "short", day: "2-digit", weekday: "short" }).toUpperCase());
   }
 
   registerVaultEvents() {
@@ -73,7 +98,7 @@ class CosmosHomepageView extends ItemView {
 
   async openPath(path, line = 0) {
     const file = this.app.vault.getAbstractFileByPath(path);
-    if (!(file instanceof TFile)) return new Notice("That note is no longer available.");
+    if (!(file instanceof TFile) && !(file?.path?.endsWith?.(".md"))) return new Notice("That note is no longer available.");
     const leaf = this.app.workspace.getLeaf(false);
     await leaf.openFile(file);
     if (line && leaf.view instanceof MarkdownView) leaf.view.editor.setCursor({ line, ch: 0 });
@@ -97,6 +122,11 @@ class CosmosHomepageView extends ItemView {
       const item = button(nav, label, index ? "" : "is-active", () => this.switchBoard(root, id, item));
       item.dataset.board = id;
     });
+    const clock = el(top, "div", { cls: "cosmos-live-clock", attr: { "aria-label": "Local time" } });
+    this.clockTime = el(clock, "b");
+    this.clockDate = el(clock, "span");
+    this.updateClock();
+    if (!this.clockTimer) this.clockTimer = window.setInterval(() => this.updateClock(), 1000);
     button(top, "Refresh", "cosmos-refresh", () => this.render()).setAttribute("aria-label", "Refresh homepage");
 
     const boards = el(root, "main", { cls: "cosmos-boards" });
@@ -135,35 +165,107 @@ class CosmosHomepageView extends ItemView {
 
   renderOverview(parent, model) {
     const board = this.board(parent, "overview", true);
-    const hero = el(board, "section", { cls: "cosmos-hero cosmos-rise" });
-    const mast = el(hero, "div", { cls: "cosmos-masthead" });
-    el(mast, "small", { text: "PERSONAL KNOWLEDGE ORBIT" });
+    const hero = el(board, "section", { cls: "cosmos-edition-hero cosmos-rise" });
+    const mast = el(hero, "div", { cls: "cosmos-edition-mast" });
+    const eyebrow = el(mast, "small", { text: "COSMOS EDITION · PERSONAL VAULT" });
+    el(eyebrow, "i");
     el(mast, "h1", { text: this.plugin.settings.homepageTitle });
-    el(mast, "p", { text: "Recent notes, unfinished work, and living themes—drawn only from your vault." });
-    const metrics = el(hero, "div", { cls: "cosmos-metrics" });
-    [[model.totalNotes, "Notes"], [model.todayCount, "Today"], [model.weekCount, "This week"], [model.openTasks, "Open tasks"]]
-      .forEach(([value, label]) => {
-        const metric = el(metrics, "div", { cls: "cosmos-metric" });
-        el(metric, "strong", { text: String(value) });
-        el(metric, "span", { text: label });
+    const orbit = el(mast, "div", { cls: "cosmos-edition-orbit" });
+    el(orbit, "span", { text: "TONIGHT" });
+    const lines = el(orbit, "div");
+    el(lines, "p", { text: model.openTasks ? `${model.openTasks} unfinished signals are waiting for a decision.` : "Your orbit is clear. Start with a recent signal." });
+    el(lines, "p", { text: `${model.todayCount} notes entered orbit today · ${model.weekCount} this week.` });
+
+    const archive = el(hero, "div", { cls: "cosmos-edition-archive" });
+    el(archive, "small", { text: "DEEP FIELD · ANNOTATED" });
+    [["galaxy", model.totalNotes, "NOTES · GALAXY"], ["planet", model.tags.length, "THEMES · PLANET"], ["cluster", model.todayCount, "TODAY · CLUSTER"], ["comet", model.openTasks, "OPEN · COMET"]]
+      .forEach(([kind, value, label]) => {
+        const object = el(archive, "div", { cls: `cosmos-edition-object is-${kind}` });
+        el(object, "i");
+        el(object, "b", { text: String(value) });
+        el(object, "span", { text: label });
       });
 
-    const grid = el(board, "div", { cls: "cosmos-grid" });
-    const recent = this.panel(grid, "Recent signals", `${model.recent.length} NOTES`, "cosmos-span-7");
-    const list = el(recent, "div", { cls: "cosmos-list" });
-    if (!model.recent.length) this.empty(list, "No notes yet", "Create a Markdown note and it will appear here.");
-    for (const note of model.recent) {
-      const item = button(list, note.title, "cosmos-list-item", () => this.openPath(note.path));
-      el(item, "span", { text: note.folder });
-    }
+    const grid = el(board, "div", { cls: "cosmos-edition-grid" });
+    this.renderEditionAtlas(grid, model);
+    this.renderEditionDecisions(grid, model);
+    this.renderEditionMission(grid, model);
+    this.renderEditionBelt(grid, model);
+  }
 
-    const tasks = this.panel(grid, "Mission control", `${model.openTasks} OPEN`, "cosmos-span-5");
-    const taskList = el(tasks, "div", { cls: "cosmos-list" });
-    if (!model.tasks.length) this.empty(taskList, "Orbit is clear", "Unfinished Markdown tasks will appear here.");
-    for (const task of model.tasks) {
-      const item = button(taskList, task.path.split("/").pop().replace(/\.md$/i, ""), "cosmos-task", () => this.openPath(task.path, task.line));
-      el(item, "span", { text: `Line ${task.line + 1}` });
-    }
+  renderEditionAtlas(parent, model) {
+    const panel = this.panel(parent, "Knowledge constellation", `${model.totalNotes} STARS · ${model.systems.length} SYSTEMS`, "cosmos-edition-atlas");
+    const field = el(panel, "div", { cls: "cosmos-edition-constellation" });
+    if (!model.systems.length) return this.empty(field, "No constellations yet", "Add tags to notes to form your first star systems.");
+    model.systems.forEach((system, index) => {
+      const star = button(field, "", `cosmos-edition-system is-pos-${index + 1} is-${system.status}`, () => this.openPath(system.path));
+      el(star, "i", { cls: "cosmos-edition-sun" });
+      for (let count = 0; count < Math.min(7, system.count); count += 1) el(star, "i", { cls: `cosmos-edition-satellite is-s${count + 1}` });
+      el(star, "strong", { text: system.name });
+      el(star, "span", { text: `${system.count} notes` });
+    });
+    const legend = el(panel, "footer", { cls: "cosmos-edition-legend" });
+    [["provisional", "Growing"], ["concluded", "Established"], ["open", "Open"]].forEach(([status, label]) => el(legend, "span", { cls: `is-${status}`, text: label }));
+  }
+
+  renderEditionDecisions(parent, model) {
+    const panel = this.panel(parent, "Awaiting decision", `${model.tasks.length} PENDING`, "cosmos-edition-decisions");
+    for (let index = 0; index < 5; index += 1) el(panel, "i", { cls: `cosmos-edition-meteor is-m${index + 1}` });
+    const deck = el(panel, "div", { cls: "cosmos-edition-deck" });
+    if (!model.tasks.length) return this.empty(deck, "Nothing is waiting", "ALL CLEAR");
+    model.tasks.slice(0, 3).forEach((task, index) => {
+      const card = el(deck, "article", { cls: `cosmos-edition-card is-depth-${index}` });
+      el(card, "i", { cls: "cosmos-edition-moon" });
+      el(card, "small", { text: "OPEN MARKDOWN TASK" });
+      el(card, "h3", { text: task.text || task.path.split("/").pop().replace(/\.md$/i, "") });
+      el(card, "p", { text: `${task.path} · line ${task.line + 1}` });
+      button(card, "Open source →", "cosmos-edition-primary", () => this.openPath(task.path, task.line));
+    });
+  }
+
+  renderEditionMission(parent, model) {
+    const panel = this.panel(parent, "Launch control", "MISSION CONTROL · GO/NO-GO", "cosmos-edition-mission-panel");
+    const stage = el(panel, "div", { cls: "cosmos-edition-mission" });
+    const pad = el(stage, "div", { cls: "cosmos-edition-pad" });
+    el(pad, "i", { cls: "rail" }); el(pad, "i", { cls: "tower" });
+    const rocket = el(pad, "div", { cls: "cosmos-edition-rocket" });
+    for (const cls of ["nose", "body", "window", "fin-left", "fin-right", "flame"]) el(rocket, "i", { cls });
+    const body = el(stage, "div", { cls: "cosmos-edition-mission-body" });
+    const time = el(body, "div", { cls: "cosmos-edition-time" });
+    this.editionTimerText = el(time, "b", { text: this.formatTime() }); el(time, "span", { text: "T-MINUS · FOCUS ORBIT" });
+    el(body, "h3", { text: model.recent[0]?.title || "Choose tonight's launch window" });
+    const checklist = el(body, "div", { cls: "cosmos-edition-checklist" });
+    const candidates = model.tasks.slice(0, 3);
+    const rows = [];
+    const syncLaunchState = () => rocket.classList.toggle("is-ready", rows.length > 0 && rows.every(({ row }) => row.classList.contains("is-go")));
+    if (!candidates.length) el(checklist, "p", { text: "All systems clear" });
+    candidates.forEach((task) => {
+      let status;
+      const row = button(checklist, "", "cosmos-edition-check", () => {
+        const ready = !row.classList.contains("is-go");
+        row.classList.toggle("is-go", ready);
+        status.setText(ready ? "GO" : "NO-GO");
+        syncLaunchState();
+      });
+      el(row, "i");
+      el(row, "span", { text: task.text || task.path.split("/").pop().replace(/\.md$/i, "") });
+      status = el(row, "b", { text: "NO-GO" });
+      rows.push({ row, status });
+    });
+    this.editionTimerButton = button(body, this.running ? "Pause focus" : "Start focus", "cosmos-edition-launch", () => this.toggleTimer());
+  }
+
+  renderEditionBelt(parent, model) {
+    const panel = this.panel(parent, "Signal belt", `DEBRIS BELT · ${model.recent.length} ROCKS`, "cosmos-edition-belt-panel");
+    const viewport = el(panel, "div", { cls: "cosmos-edition-belt-viewport" });
+    const belt = el(viewport, "div", { cls: "cosmos-edition-belt" });
+    if (!model.recent.length) return this.empty(viewport, "No new signals", "New and recently changed notes will enter this orbit.");
+    for (let repeat = 0; repeat < 2; repeat += 1) model.recent.forEach((note, index) => {
+      const rock = button(belt, "", `cosmos-edition-rock is-tone-${index % 5} is-size-${index % 4}`, () => this.openPath(note.path));
+      el(rock, "i"); el(rock, "strong", { text: note.title }); el(rock, "span", { text: note.folder });
+    });
+    const foot = el(panel, "footer", { cls: "cosmos-edition-belt-foot" });
+    el(foot, "span", { text: "MAIN BELT · LOCAL NOTES" }); el(foot, "span", { text: "SELECT A ROCK TO OPEN" });
   }
 
   renderFocus(parent, model) {
@@ -192,8 +294,10 @@ class CosmosHomepageView extends ItemView {
 
   updateTimer() {
     this.timerText?.setText(this.formatTime());
+    this.editionTimerText?.setText(this.formatTime());
     this.timerState?.setText(this.running ? "TRACKING" : "STANDBY");
     this.timerButton?.setText(this.running ? "Pause focus" : "Start focus");
+    this.editionTimerButton?.setText(this.running ? "Pause focus" : "Start focus");
   }
 
   toggleTimer() {

@@ -18,7 +18,10 @@ const forbidden = [/\/Users\//, /127\.0\.0\.1/, /localhost/i, /568[0-9]/, /567[0
 for (const pattern of forbidden) if (pattern.test(publicText)) throw new Error(`private coupling detected: ${pattern}`);
 if (/\bfetch\s*\(|requestUrl\s*\(/.test(publicText)) throw new Error("v1 must not access the network");
 if (/innerHTML\s*=/.test(publicText)) throw new Error("unsafe innerHTML assignment detected");
-if (/\.style(?:\.|\[)/.test(`${source}\n${model}`)) throw new Error("JavaScript must not assign inline styles");
+const styleLines = source.split("\n").filter((line) => /\.style(?:\.|\[)/.test(line));
+if (styleLines.some((line) => !/this\.contentEl\.style\.(?:setProperty|removeProperty)\("--cosmos-pointer-[xy]"/.test(line))) {
+  throw new Error("JavaScript may only update the scoped pointer-light CSS variables");
+}
 if (/console\./.test(`${source}\n${model}`)) throw new Error("production source must not log to the console");
 if (/registry\.npmmirror\.com/.test(lock)) throw new Error("lockfile must use the official npm registry");
 if (/detachLeavesOfType/.test(source)) throw new Error("unload must not detach user leaves");

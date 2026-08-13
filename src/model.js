@@ -72,7 +72,7 @@ function collectTasks(cache = {}, path) {
   const tasks = [];
   for (const item of cache.listItems || []) {
     if (item?.task !== " ") continue;
-    tasks.push({ path, line: Number(item?.position?.start?.line || 0) });
+    tasks.push({ path, line: Number(item?.position?.start?.line || 0), text: text(item?.text) });
   }
   return tasks;
 }
@@ -140,5 +140,10 @@ export function buildVaultModel(app, rawSettings = {}, now = new Date()) {
     tags: rank(tagCounts, 12, tagPaths),
     folders: rank(folderCounts, 8),
     activities,
+    systems: rank(tagCounts, 8, tagPaths).map((tag, index) => ({
+      ...tag,
+      notes: files.filter((file) => file.tags.includes(tag.name)).slice(0, 8),
+      status: index % 3 === 0 ? "provisional" : index % 3 === 1 ? "concluded" : "open",
+    })),
   };
 }

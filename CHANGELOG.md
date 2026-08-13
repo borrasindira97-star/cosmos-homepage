@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0
+
+- Brought the complete Cosmos Edition overview to the public plugin: deep-field metrics, an interactive knowledge constellation, a decision deck, launch control, and a moving signal belt.
+- Added a scoped pointer light, live local clock, synchronized breathing and meteor motion, rocket readiness, and responsive layouts with reduced-motion support.
+- Kept the public boundary local and read-only: every surface is derived from standard Obsidian metadata and Markdown tasks, with no Loop, Graph, network, account, telemetry, or AI coupling.
+- Replaced the gallery with screenshots rendered by the production view against synthetic demo metadata.
+
 ## 1.0.6
 
 - Removed `!important` from reduced-motion styles while preserving the same accessible behavior.

@@ -32,7 +32,7 @@ test("vault projection is read-only, deterministic, and excludes configured fold
   const b = file("Notes/Beta.md", new Date(2026, 7, 8, 9, 0).getTime(), 20);
   const secret = file("Private/Secret.md", now.getTime(), 50);
   const caches = new Map([
-    [a.path, { frontmatter: { title: "Alpha", tags: ["ai", "research"] }, listItems: [{ task: " ", position: { start: { line: 4 } } }] }],
+    [a.path, { frontmatter: { title: "Alpha", tags: ["ai", "research"] }, listItems: [{ task: " ", text: "Validate the launch plan", position: { start: { line: 4 } } }] }],
     [b.path, { tags: [{ tag: "#ai" }] }],
   ]);
   const settings = { excludedFolders: ["Private"], recentLimit: 8 };
@@ -44,6 +44,11 @@ test("vault projection is read-only, deterministic, and excludes configured fold
   assert.equal(first.openTasks, 1);
   assert.deepEqual(first.recent.map((item) => item.path), [a.path, b.path]);
   assert.deepEqual(first.tags, [{ name: "ai", count: 2, path: a.path }, { name: "research", count: 1, path: a.path }]);
+  assert.equal(first.tasks[0].text, "Validate the launch plan");
+  assert.deepEqual(first.systems.map(({ name, status }) => ({ name, status })), [
+    { name: "ai", status: "provisional" },
+    { name: "research", status: "concluded" },
+  ]);
   assert.deepEqual(first.recent, second.recent);
   assert.equal(first.activities.get("2026-08-13")[0].title, "Alpha");
 });

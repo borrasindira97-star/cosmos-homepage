@@ -10,11 +10,15 @@ test("refresh is debounced and does not reset the selected board", async () => {
   assert.doesNotMatch(source, /this\.app\.vault\.on\("create"/);
 });
 
-test("all timers have explicit release paths and visuals use no JavaScript styling", async () => {
+test("all timers and pointer light have explicit release paths", async () => {
   const source = await readFile("src/main.js", "utf8");
   assert.match(source, /clearInterval\(this\.focusTimer\)/);
+  assert.match(source, /clearInterval\(this\.clockTimer\)/);
   assert.match(source, /clearTimeout\(this\.refreshTimer\)/);
-  assert.doesNotMatch(source, /pointermove|\.style(?:\.|\[)/);
+  assert.match(source, /addEventListener\("pointermove", this\.pointerHandler/);
+  assert.match(source, /removeEventListener\("pointermove", this\.pointerHandler/);
+  assert.match(source, /removeProperty\("--cosmos-pointer-x"\)/);
+  assert.match(source, /removeProperty\("--cosmos-pointer-y"\)/);
 });
 
 test("focus setting updates idle views without changing a running timer", async () => {

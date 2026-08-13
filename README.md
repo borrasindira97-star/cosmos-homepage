@@ -10,7 +10,7 @@ A calm, interactive Obsidian homepage for seeing what is alive in your vault—r
 
 </div>
 
-![Cosmos Homepage overview](./assets/cosmos-homepage.png)
+![Cosmos Edition overview rendered from synthetic demo metadata](./assets/cosmos-homepage.png)
 
 Cosmos Homepage turns an ordinary vault into a personal knowledge observatory. It does not ask you to reorganize your folders or adopt a new workflow. Open it and the structure already present in your notes becomes visible: what changed today, what still needs attention, when your vault was active, and which ideas keep returning.
 
@@ -20,9 +20,19 @@ It is local, read-only, and ready to use without Dataview, an account, an AI ser
 
 ## One homepage, four ways to see your vault
 
-### Overview — know where to begin
+### Overview — a complete knowledge observatory
 
-The overview brings recent notes, open Markdown tasks, and honest activity counts into one quiet command surface. Select a signal or task to open the exact source note—Cosmos is a lens over your vault, not a second place where work gets trapped.
+The Cosmos Edition overview combines five distinct instruments without creating a second database:
+
+- **Deep field** shows honest note, theme, daily, and unfinished-task counts.
+- **Knowledge constellation** turns your most-used tags into connected, breathing star systems.
+- **Awaiting decision** surfaces real unfinished Markdown tasks and opens the exact source line.
+- **Launch control** combines a local focus timer with a lightweight GO/NO-GO checklist.
+- **Signal belt** keeps recent and changed notes moving through a selectable debris field.
+
+The pointer carries a soft light source across the homepage; stars breathe together, meteors cross the decision deck, the rocket responds to readiness, and the signal belt pauses when you inspect it. Motion can be disabled without losing information.
+
+<p align="center"><img src="./assets/cosmos-homepage-mobile.png" alt="Cosmos Edition responsive overview with synthetic demo metadata" width="420"></p>
 
 ### Focus orbit — give one idea uninterrupted time
 
@@ -70,7 +80,7 @@ Cosmos uses metadata already indexed by Obsidian:
 - `created`, `created_at`, or `date` frontmatter;
 - Markdown task positions needed to open the source line.
 
-It does **not** read note bodies to build the homepage. Excluded folders are never included in its projection; the defaults exclude `.trash` and `Templates`. Settings are stored through Obsidian's plugin data API.
+It does **not** scan note bodies to build the homepage. Obsidian's already-indexed task metadata supplies the unfinished-task labels and source positions; Cosmos does not open files to parse them. Excluded folders are never included in its projection; the defaults exclude `.trash` and `Templates`. Settings are stored through Obsidian's plugin data API.
 
 ## Honest limits
 
@@ -93,6 +103,8 @@ npm run release:verify
 ```
 
 The release bundle is `main.js`; `manifest.json` and `styles.css` ship alongside it.
+
+`npm run demo` starts the screenshot/visual-regression harness. It instantiates the production `CosmosHomepageView` with a synthetic metadata projection; it is not a separately maintained mock interface.
 
 ## License
 
