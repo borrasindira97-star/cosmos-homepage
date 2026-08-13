@@ -155,7 +155,7 @@
 
 .cosmos-homepage-view.is-reduced-motion *,
 .cosmos-homepage-view.is-reduced-motion *::before,
-.cosmos-homepage-view.is-reduced-motion *::after { animation: none !important; transition: none !important; }
+.cosmos-homepage-view.is-reduced-motion *::after { animation: none; transition: none; }
 
 @keyframes cosmos-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes cosmos-breathe { 50% { opacity: .45; box-shadow: 0 0 4px currentColor; } }
@@ -180,7 +180,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cosmos-homepage-view *,
-  .cosmos-homepage-view *::before,
-  .cosmos-homepage-view *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+  .cosmos-homepage-view.cosmos-homepage-view *,
+  .cosmos-homepage-view.cosmos-homepage-view *::before,
+  .cosmos-homepage-view.cosmos-homepage-view *::after { animation: none; transition: none; scroll-behavior: auto; }
 }

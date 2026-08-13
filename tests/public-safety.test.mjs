@@ -17,9 +17,14 @@ test("public source has no network, private path, or local service coupling", as
 test("manifest is an installable non-desktop-only community plugin", async () => {
   const manifest = JSON.parse(await readFile("manifest.json", "utf8"));
   assert.equal(manifest.id, "cosmos-homepage");
-  assert.equal(manifest.version, "1.0.5");
+  assert.equal(manifest.version, "1.0.6");
   assert.equal(manifest.isDesktopOnly, false);
   assert.ok(manifest.description.length <= 250);
+});
+
+test("public styles avoid important overrides", async () => {
+  const styles = await readFile("styles.css", "utf8");
+  assert.doesNotMatch(styles, /!important/);
 });
 
 test("release automation uses GitHub's bundled CLI without a third-party publisher", async () => {

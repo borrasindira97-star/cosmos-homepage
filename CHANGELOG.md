@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.6
+
+- Removed `!important` from reduced-motion styles while preserving the same accessible behavior.
+
 ## 1.0.5
 
 - Added GitHub build provenance attestations for all three release assets.
