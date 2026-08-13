@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.5
+
+- Added GitHub build provenance attestations for all three release assets.
+
 ## 1.0.4
 
 - Made release publication safe to rerun after a partial GitHub upload.
