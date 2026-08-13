@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 
 test("public source has no network, private path, or local service coupling", async () => {
   const source = `${await readFile("src/main.js", "utf8")}\n${await readFile("src/model.js", "utf8")}`;
@@ -42,4 +42,21 @@ test("gitignore excludes only the root bundle, not the source entry", async () =
   const ignore = await readFile(".gitignore", "utf8");
   assert.match(ignore, /^\/main\.js$/m);
   assert.doesNotMatch(ignore, /^main\.js$/m);
+});
+
+test("README product gallery is complete and all linked screenshots exist", async () => {
+  const readme = await readFile("README.md", "utf8");
+  const screenshots = [
+    "assets/cosmos-homepage.png",
+    "assets/focus-orbit.png",
+    "assets/activity-calendar.png",
+    "assets/knowledge-atlas.png",
+  ];
+
+  for (const screenshot of screenshots) {
+    assert.match(readme, new RegExp(screenshot.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.ok((await stat(screenshot)).size > 20_000, `${screenshot} should be a real product screenshot`);
+  }
+  assert.match(readme, /synthetic demo notes/i);
+  assert.match(readme, /obsidian:\/\/show-plugin\?id=cosmos-homepage/);
 });

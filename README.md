@@ -1,48 +1,87 @@
+<div align="center">
+
 # Cosmos Homepage
 
-Turn an Obsidian vault into a calm, interactive starfield homepage.
+### Your ideas have an orbit.
 
-Cosmos surfaces what already exists in your vault—recent notes, unfinished tasks, creation activity, and recurring tags—without requiring a special folder structure, Dataview, an account, or an external service.
+A calm, interactive Obsidian homepage for seeing what is alive in your vault—recent notes, unfinished work, creation activity, focus, and recurring themes.
+
+[**Add to Obsidian**](obsidian://show-plugin?id=cosmos-homepage) · [Community listing](https://community.obsidian.md/plugins/cosmos-homepage) · [Latest release](https://github.com/borrasindira97-star/cosmos-homepage/releases/latest)
+
+</div>
 
 ![Cosmos Homepage overview](./assets/cosmos-homepage.png)
 
-## What it gives you
+Cosmos Homepage turns an ordinary vault into a personal knowledge observatory. It does not ask you to reorganize your folders or adopt a new workflow. Open it and the structure already present in your notes becomes visible: what changed today, what still needs attention, when your vault was active, and which ideas keep returning.
 
-- **Overview:** recent notes, open Markdown tasks, and clear vault activity counts.
-- **Focus orbit:** a local 25-minute focus timer with configurable duration.
-- **Activity calendar:** glowing dates show when notes were created; select a date to open its notes.
-- **Knowledge atlas:** your most-used tags become interactive star systems that open a real note from that theme.
-- **Accessible motion:** keyboard focus, honest empty states, mobile layout, and reduced-motion support.
+It is local, read-only, and ready to use without Dataview, an account, an AI service, or a special folder structure.
 
-## Use
+> The screenshots below use synthetic demo notes. Cosmos reads only your own local vault when installed.
 
-1. Select the sparkle icon in the ribbon, or run **Cosmos Homepage: Open homepage** from the command palette.
-2. Switch between Overview, Focus, Calendar, and Atlas.
-3. Select any note or star to open the corresponding Markdown file.
-4. Open **Settings → Cosmos Homepage** to change the headline, focus duration, excluded folders, startup behavior, or motion preference.
+## One homepage, four ways to see your vault
 
-Cosmos does not take over your workspace after installation. Enable **Open on startup** if you want it to open automatically after Obsidian restores your workspace.
+### Overview — know where to begin
 
-## Data and privacy
+The overview brings recent notes, open Markdown tasks, and honest activity counts into one quiet command surface. Select a signal or task to open the exact source note—Cosmos is a lens over your vault, not a second place where work gets trapped.
 
-Cosmos Homepage is local and read-only:
+### Focus orbit — give one idea uninterrupted time
 
-- It reads Markdown file metadata already indexed by Obsidian: file names, paths, timestamps, tags, frontmatter creation dates, and task positions.
-- It does **not** read note bodies to build the homepage.
-- It does **not** modify notes, create files, connect to the internet, use telemetry, display ads, require an account, or call an AI service.
-- Settings are stored with Obsidian's plugin data API.
+Start a configurable local focus session beside the notes you were already working with. The timer stays session-local: no tracking account, no telemetry, and no writes added to your notes.
 
-Excluded folder paths are never included in the homepage projection. The defaults exclude `.trash` and `Templates`.
+![Local focus orbit and recent signals](./assets/focus-orbit.png)
 
-## Limits
+### Activity calendar — see when your vault came alive
 
-- The activity calendar uses a note's `created`, `created_at`, or `date` frontmatter when available, then falls back to the file creation time provided by Obsidian.
-- Atlas stars represent tags, not semantic similarity. A future version may add optional data adapters, but version 1 has no network or AI integration.
-- The focus timer is session-local and intentionally does not write tracking data into the vault.
+Glowing dates reveal days with created notes. Select a date to see its daily log, then open the real Markdown file. Frontmatter dates are respected when present; otherwise Cosmos uses the creation time provided by Obsidian.
+
+![Activity calendar with a selected daily log](./assets/activity-calendar.png)
+
+### Knowledge atlas — recurring themes become constellations
+
+Your most-used tags become an interactive star system. Brighter systems represent themes with more notes. Select a star to open a real note from that theme and continue exploring from the source.
+
+![Knowledge atlas built from recurring vault tags](./assets/knowledge-atlas.png)
+
+## Why Cosmos feels different
+
+- **Zero reorganization.** It works with the folders, notes, tags, frontmatter, and Markdown tasks you already have.
+- **A view, not another database.** Every useful item leads back to a real note in your vault.
+- **Calm by design.** The starfield has atmosphere without obscuring the information you came to see.
+- **Local by default.** No network requests, accounts, telemetry, advertisements, or AI calls.
+- **Read-only by design.** Cosmos does not edit notes, create files, or rewrite metadata.
+- **Accessible motion.** Keyboard navigation, visible focus states, responsive layouts, honest empty states, and reduced-motion support are built in.
+
+## Start in under a minute
+
+1. Install **Cosmos Homepage** from Obsidian's Community plugins.
+2. Select the sparkle icon in the ribbon, or run **Cosmos Homepage: Open homepage** from the command palette.
+3. Move between **Overview**, **Focus**, **Calendar**, and **Atlas**.
+4. Open **Settings → Cosmos Homepage** to choose your headline, focus duration, excluded folders, startup behavior, and motion preference.
+
+Cosmos does not take over your workspace after installation. Enable **Open on startup** only if you want it to open automatically after Obsidian restores your workspace.
+
+## What Cosmos reads
+
+Cosmos uses metadata already indexed by Obsidian:
+
+- file names and paths;
+- creation and modification timestamps;
+- tags;
+- `created`, `created_at`, or `date` frontmatter;
+- Markdown task positions needed to open the source line.
+
+It does **not** read note bodies to build the homepage. Excluded folders are never included in its projection; the defaults exclude `.trash` and `Templates`. Settings are stored through Obsidian's plugin data API.
+
+## Honest limits
+
+- Atlas stars represent shared tags, not semantic similarity.
+- Calendar accuracy depends on available frontmatter or the file creation time reported by Obsidian.
+- The focus timer is intentionally session-local and is not a time-tracking system.
+- Version 1 has no network or AI integration. Future adapters, if added, will remain optional rather than silently changing the local-first baseline.
 
 ## Manual installation
 
-1. Download `main.js`, `manifest.json`, and `styles.css` from a release.
+1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/borrasindira97-star/cosmos-homepage/releases/latest).
 2. Put them in `<your-vault>/.obsidian/plugins/cosmos-homepage/`.
 3. Reload Obsidian and enable **Cosmos Homepage** in Community plugins.
 
@@ -53,7 +92,7 @@ npm install
 npm run release:verify
 ```
 
-The release build is `main.js`; `manifest.json` and `styles.css` are shipped alongside it.
+The release bundle is `main.js`; `manifest.json` and `styles.css` ship alongside it.
 
 ## License
 
