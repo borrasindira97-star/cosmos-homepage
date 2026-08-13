@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4
+
+- Made release publication safe to rerun after a partial GitHub upload.
+
 ## 1.0.3
 
 - Updated the public repository owner and author link after the repository transfer.
