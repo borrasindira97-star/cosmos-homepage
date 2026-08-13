@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.3
+
+- Updated the public repository owner and author link after the repository transfer.
+
 ## 1.0.2
 
 - First public release.

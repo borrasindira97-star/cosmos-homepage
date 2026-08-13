@@ -17,7 +17,7 @@ test("public source has no network, private path, or local service coupling", as
 test("manifest is an installable non-desktop-only community plugin", async () => {
   const manifest = JSON.parse(await readFile("manifest.json", "utf8"));
   assert.equal(manifest.id, "cosmos-homepage");
-  assert.equal(manifest.version, "1.0.2");
+  assert.equal(manifest.version, "1.0.3");
   assert.equal(manifest.isDesktopOnly, false);
   assert.ok(manifest.description.length <= 250);
 });
