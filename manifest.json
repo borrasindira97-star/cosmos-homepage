@@ -1,0 +1,10 @@
+{
+  "id": "cosmos-homepage",
+  "name": "Cosmos Homepage",
+  "version": "1.0.0",
+  "minAppVersion": "1.13.0",
+  "description": "Turn your vault into an interactive starfield homepage for notes, tasks, activity, focus, and themes.",
+  "author": "nigo",
+  "authorUrl": "https://github.com/Nigo-ly",
+  "isDesktopOnly": false
+}
