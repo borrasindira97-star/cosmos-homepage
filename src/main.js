@@ -255,6 +255,7 @@ export class CosmosHomepageView extends ItemView {
     model.systems.forEach((system, index) => {
       const star = button(field, "", `cosmos-edition-system is-pos-${index + 1} is-tone-${index % 3}`, () => this.openTheme(system.name, star));
       star.dataset.theme = system.name;
+      star.dataset.themeSurface = "overview";
       star.setAttribute("aria-label", `Theme ${system.name}: ${system.count} notes, last edited ${localDay(system.lastModified) || "unknown"}`);
       el(star, "i", { cls: "cosmos-edition-sun" });
       for (let count = 0; count < Math.min(7, system.count); count += 1) el(star, "i", { cls: `cosmos-edition-satellite is-s${count + 1}` });
@@ -444,7 +445,8 @@ export class CosmosHomepageView extends ItemView {
     this.themeDrawerEl = null;
     this.themeTrigger = null;
     const currentTrigger = trigger?.isConnected ? trigger
-      : [...this.contentEl.querySelectorAll("button[data-theme]")].find((item) => item.dataset.theme === name);
+      : [...this.contentEl.querySelectorAll("button[data-theme]")]
+        .find((item) => item.dataset.theme === name && item.dataset.themeSurface === trigger?.dataset?.themeSurface);
     currentTrigger?.focus();
   }
 
@@ -535,6 +537,7 @@ export class CosmosHomepageView extends ItemView {
       const size = Math.min(4, Math.max(1, Math.ceil((tag.count / max) * 4)));
       const star = button(field, "", `cosmos-star is-pos-${(index % 12) + 1} is-size-${size}`, () => this.openTheme(tag.name, star));
       star.dataset.theme = tag.name;
+      star.dataset.themeSurface = "atlas";
       star.setAttribute("aria-label", `Theme ${tag.name}: ${tag.count} notes, last edited ${localDay(tag.lastModified) || "unknown"}`);
       el(star, "i");
       el(star, "strong", { text: tag.name });

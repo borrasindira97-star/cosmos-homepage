@@ -193,6 +193,13 @@ test("8. clicking a star opens the native theme panel and Escape closes it", asy
   view.contentEl.querySelector(".cosmos-theme-close").click();
   assert.equal(view.contentEl.querySelector(".cosmos-theme-drawer"), null);
   assert.equal(view.contentEl.constructor.activeElement.dataset.theme, editionTriggerTheme);
+
+  const atlasTrigger = view.contentEl.querySelector(".cosmos-star");
+  atlasTrigger.click();
+  view.render();
+  view.contentEl.querySelector(".cosmos-theme-close").click();
+  assert.equal(view.contentEl.constructor.activeElement.dataset.themeSurface, "atlas");
+  assert.ok(view.contentEl.constructor.activeElement.classList.contains("cosmos-star"));
   await view.onClose();
 });
 

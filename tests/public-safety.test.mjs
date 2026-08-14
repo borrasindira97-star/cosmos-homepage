@@ -90,6 +90,7 @@ test("README product gallery is complete and all linked screenshots exist", asyn
   for (const screenshot of screenshots) {
     assert.match(readme, new RegExp(screenshot.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     assert.ok((await stat(screenshot)).size > 20_000, `${screenshot} should be a real product screenshot`);
+    assert.equal((await readFile(screenshot)).subarray(0, 8).toString("hex"), "89504e470d0a1a0a", `${screenshot} should contain PNG data`);
   }
   assert.match(readme, /synthetic demo notes/i);
   assert.match(readme, /obsidian:\/\/show-plugin\?id=cosmos-homepage/);

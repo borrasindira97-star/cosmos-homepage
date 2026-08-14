@@ -8,6 +8,7 @@
 - Renamed "Awaiting decision" to an honest "Open tasks" and removed the misleading GO/NO-GO checklist copy of task data.
 - Rebuilt Launch control as a session-local focus launcher: pick a recent note as the target, see the duration, start, pause, reset, or open the target; the rocket reacts only to real events (armed, launched, paused, complete) and nothing is written back to Markdown.
 - Clicking a theme star now opens the Cosmos theme panel with the tag's real notes sorted by last edit—keyboard accessible, Escape to close, honest empty state.
+- Closing the theme panel now restores focus to the exact star surface that opened it, even when the same theme appears in both Overview and Atlas.
 - Renamed the calendar to Creation calendar with previous/next/current month navigation; day badges match their daily logs, and only creation evidence (frontmatter or file creation time) lights up a date.
 - Added a first-run explanation for empty or sparse vaults; Cosmos still writes nothing to the vault.
 - Hardened the lifecycle: metadata bursts collapse into a single refresh, a closed view never renders again, and closing releases timers, listeners, the theme panel, and the source-leaf reference.
