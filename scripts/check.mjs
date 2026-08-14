@@ -12,7 +12,8 @@ if (pkg.version !== manifest.version || versions[manifest.version] !== manifest.
 for (const file of ["README.md", "LICENSE", "manifest.json", "versions.json", "styles.css", "src/main.js", "src/model.js"]) await stat(file);
 const source = await readFile("src/main.js", "utf8");
 const model = await readFile("src/model.js", "utf8");
-const lock = await readFile("package-lock.json", "utf8");
+const lock = JSON.parse(await readFile("package-lock.json", "utf8"));
+if (lock.version !== pkg.version || lock.packages?.[""]?.version !== pkg.version) throw new Error("package-lock version drift");
 const publicText = `${source}\n${model}\n${await readFile("README.md", "utf8")}`;
 const forbidden = [/\/Users\//, /127\.0\.0\.1/, /localhost/i, /568[0-9]/, /567[0-9]/, /Keychain/i, /nigo-loop/i, /My Life\.md/];
 for (const pattern of forbidden) if (pattern.test(publicText)) throw new Error(`private coupling detected: ${pattern}`);
@@ -23,7 +24,7 @@ if (styleLines.some((line) => !/this\.contentEl\.style\.(?:setProperty|removePro
   throw new Error("JavaScript may only update the scoped pointer-light CSS variables");
 }
 if (/console\./.test(`${source}\n${model}`)) throw new Error("production source must not log to the console");
-if (/registry\.npmmirror\.com/.test(lock)) throw new Error("lockfile must use the official npm registry");
+if (/registry\.npmmirror\.com/.test(JSON.stringify(lock))) throw new Error("lockfile must use the official npm registry");
 if (/detachLeavesOfType/.test(source)) throw new Error("unload must not detach user leaves");
 if (/softprops\/action-gh-release/.test(await readFile(".github/workflows/release.yml", "utf8"))) throw new Error("release workflow must not require a third-party publishing action");
 if (spawnSync("git", ["check-ignore", "src/main.js"]).status === 0) throw new Error("source entry must not be ignored by Git");

@@ -25,30 +25,30 @@ It is local, read-only, and ready to use without Dataview, an account, an AI ser
 The Cosmos Edition overview combines five distinct instruments without creating a second database:
 
 - **Deep field** shows honest note, theme, daily, and unfinished-task counts.
-- **Knowledge constellation** turns your most-used tags into connected, breathing star systems.
-- **Awaiting decision** surfaces real unfinished Markdown tasks and opens the exact source line.
-- **Launch control** combines a local focus timer with a lightweight GO/NO-GO checklist.
-- **Signal belt** keeps recent and changed notes moving through a selectable debris field.
+- **Knowledge constellation** turns your most-used tags into connected, breathing star systems. Stars show the tag name, the real note count, and when the theme was last edited—nothing more.
+- **Open tasks** surfaces real unfinished Markdown tasks from Obsidian's metadata cache and opens the exact source line.
+- **Launch control** is a session-local focus launcher: pick a recent note as the target, see the orbit duration, start, pause, or reset, and open the target document. Nothing is written back to your Markdown.
+- **Signal belt** keeps recently modified notes moving through a selectable debris field.
 
-The pointer carries a soft light source across the homepage; stars breathe together, meteors cross the decision deck, the rocket responds to readiness, and the signal belt pauses when you inspect it. Motion can be disabled without losing information.
+The pointer carries a soft light source across the homepage; stars breathe together, meteors cross the task deck, the rocket follows real focus events (target selected, running, paused, complete), and the signal belt pauses when you inspect it. Motion can be disabled without losing information.
 
 <p align="center"><img src="./assets/cosmos-homepage-mobile.png" alt="Cosmos Edition responsive overview with synthetic demo metadata" width="420"></p>
 
 ### Focus orbit — give one idea uninterrupted time
 
-Start a configurable local focus session beside the notes you were already working with. The timer stays session-local: no tracking account, no telemetry, and no writes added to your notes.
+Choose a focus target from your recent notes, then start a configurable local session beside it. You can pause, reset, or open the target document at any time. The timer stays session-local: no tracking account, no telemetry, and no writes added to your notes.
 
 ![Local focus orbit and recent signals](./assets/focus-orbit.png)
 
-### Activity calendar — see when your vault came alive
+### Creation calendar — see when your vault came alive
 
-Glowing dates reveal days with created notes. Select a date to see its daily log, then open the real Markdown file. Frontmatter dates are respected when present; otherwise Cosmos uses the creation time provided by Obsidian.
+Move between months, or jump back to the current one. Glowing dates show how many notes were created that day; select a date to see its daily log, then open the real Markdown file. `created`, `created_at`, or `date` frontmatter is respected when present; otherwise Cosmos uses the file creation time provided by Obsidian. Modification, tasks, and other events are never presented as creation.
 
-![Activity calendar with a selected daily log](./assets/activity-calendar.png)
+![Creation calendar with a selected daily log](./assets/activity-calendar.png)
 
 ### Knowledge atlas — recurring themes become constellations
 
-Your most-used tags become an interactive star system. Brighter systems represent themes with more notes. Select a star to open a real note from that theme and continue exploring from the source.
+Your most-used tags become an interactive star system. Brighter systems represent themes with more notes. Select a star to open the Cosmos theme panel: the tag's real notes, sorted by last edit, each one a keyboard-accessible link that opens the source document in a reusable tab.
 
 ![Knowledge atlas built from recurring vault tags](./assets/knowledge-atlas.png)
 
@@ -72,19 +72,22 @@ Cosmos does not take over your workspace after installation. Enable **Open on st
 
 ## What Cosmos reads
 
-Cosmos uses metadata already indexed by Obsidian:
+Cosmos never opens note bodies. It works from metadata Obsidian has already indexed:
 
-- file names and paths;
-- creation and modification timestamps;
+- file names, paths, and creation/modification timestamps;
 - tags;
 - `created`, `created_at`, or `date` frontmatter;
-- Markdown task positions needed to open the source line.
+- unfinished Markdown task entries, including the task text and the source position needed to open the exact line.
 
-It does **not** scan note bodies to build the homepage. Obsidian's already-indexed task metadata supplies the unfinished-task labels and source positions; Cosmos does not open files to parse them. Excluded folders are never included in its projection; the defaults exclude `.trash` and `Templates`. Settings are stored through Obsidian's plugin data API.
+Task text is content-derived information taken from Obsidian's metadata cache—Cosmos does not open files to parse them, and it never treats an unfinished Markdown task as anything other than an open task. Excluded folders are never included in its projection; the defaults exclude `.trash` and `Templates`. Settings are stored through Obsidian's plugin data API.
+
+Opening a document from any surface keeps the homepage in its own tab and reuses one adjacent tab for source documents, so clicking through tasks, themes, or calendar entries never replaces Cosmos and never multiplies tabs.
+
+A new or sparse vault shows a short first-run explanation instead of pretending to have data: add tags to form constellations, leave Markdown tasks unfinished to fill Open tasks, create notes to light up the creation calendar, edit notes to feed the signal belt, and adjust excluded folders in settings. Cosmos never injects demo content into your vault.
 
 ## Honest limits
 
-- Atlas stars represent shared tags, not semantic similarity.
+- Atlas stars represent shared tags, not semantic similarity, and carry no maturity or completion judgement.
 - Calendar accuracy depends on available frontmatter or the file creation time reported by Obsidian.
 - The focus timer is intentionally session-local and is not a time-tracking system.
 - Version 1 has no network or AI integration. Future adapters, if added, will remain optional rather than silently changing the local-first baseline.

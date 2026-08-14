@@ -43,12 +43,15 @@ test("vault projection is read-only, deterministic, and excludes configured fold
   assert.equal(first.weekCount, 2);
   assert.equal(first.openTasks, 1);
   assert.deepEqual(first.recent.map((item) => item.path), [a.path, b.path]);
-  assert.deepEqual(first.tags, [{ name: "ai", count: 2, path: a.path }, { name: "research", count: 1, path: a.path }]);
   assert.equal(first.tasks[0].text, "Validate the launch plan");
-  assert.deepEqual(first.systems.map(({ name, status }) => ({ name, status })), [
-    { name: "ai", status: "provisional" },
-    { name: "research", status: "concluded" },
+  assert.deepEqual(first.tags, [
+    { name: "ai", count: 2, lastModified: 30 },
+    { name: "research", count: 1, lastModified: 30 },
   ]);
+  assert.deepEqual(first.systems, first.tags);
+  assert.ok(first.systems.every((system) => !("status" in system)));
+  assert.deepEqual(first.tagNotes.get("ai").map((note) => note.path), [a.path, b.path]);
+  assert.deepEqual(first.tagNotes.get("research").map((note) => note.path), [a.path]);
   assert.deepEqual(first.recent, second.recent);
   assert.equal(first.activities.get("2026-08-13")[0].title, "Alpha");
 });
@@ -58,4 +61,12 @@ test("declared frontmatter creation time wins without reading file content", () 
   const caches = new Map([[note.path, { frontmatter: { created: "2026-08-13T10:00:00+08:00" } }]]);
   const model = buildVaultModel(app([note], caches), {}, new Date(2026, 7, 13, 12));
   assert.equal(model.todayCount, 1);
+});
+
+test("creation activity counts and logs are never truncated by the legacy activity limit", () => {
+  const created = new Date(2026, 7, 13, 9).getTime();
+  const files = Array.from({ length: 35 }, (_, index) => file(`Notes/${index}.md`, created + index));
+  const model = buildVaultModel(app(files), { activityLimit: 30 }, new Date(2026, 7, 13, 12));
+  assert.equal(model.todayCount, 35);
+  assert.equal(model.activities.get("2026-08-13").length, 35);
 });

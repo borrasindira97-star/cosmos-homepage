@@ -34,7 +34,10 @@ await build({
           constructor(leaf) { this.leaf = leaf; this.app = leaf.app; this.contentEl = leaf.contentEl; }
         }
         export class Plugin {}
-        export class PluginSettingTab { constructor(app, plugin) { this.app = app; this.plugin = plugin; } }
+        export class PluginSettingTab {
+          constructor(app, plugin) { this.app = app; this.plugin = plugin; }
+          update() { this.settingItems = this.getSettingDefinitions(); }
+        }
         export class MarkdownView {}
         export class Notice { constructor(message) { window.__cosmosNotice = message; } }
       ` }));

@@ -19,9 +19,16 @@ test("public source has no network, private path, or local service coupling", as
 test("manifest is an installable non-desktop-only community plugin", async () => {
   const manifest = JSON.parse(await readFile("manifest.json", "utf8"));
   assert.equal(manifest.id, "cosmos-homepage");
-  assert.equal(manifest.version, "1.1.0");
+  assert.equal(manifest.version, "1.2.0");
   assert.equal(manifest.isDesktopOnly, false);
   assert.ok(manifest.description.length <= 250);
+});
+
+test("package and lockfile release versions stay aligned", async () => {
+  const pkg = JSON.parse(await readFile("package.json", "utf8"));
+  const lock = JSON.parse(await readFile("package-lock.json", "utf8"));
+  assert.equal(lock.version, pkg.version);
+  assert.equal(lock.packages[""].version, pkg.version);
 });
 
 test("public styles avoid important overrides", async () => {
@@ -86,4 +93,17 @@ test("README product gallery is complete and all linked screenshots exist", asyn
   }
   assert.match(readme, /synthetic demo notes/i);
   assert.match(readme, /obsidian:\/\/show-plugin\?id=cosmos-homepage/);
+});
+
+test("public wording stays honest about metadata, tasks, and the calendar", async () => {
+  const readme = await readFile("README.md", "utf8");
+  const source = `${await readFile("src/main.js", "utf8")}\n${await readFile("src/model.js", "utf8")}`;
+  assert.doesNotMatch(readme, /Awaiting decision/i);
+  assert.doesNotMatch(readme, /GO\/NO-GO/i);
+  assert.doesNotMatch(readme, /scan(s)? note bodies/i);
+  assert.match(readme, /never opens note bodies/i);
+  assert.match(readme, /metadata cache/i);
+  assert.match(readme, /Open tasks/);
+  assert.match(readme, /Creation calendar/i);
+  assert.doesNotMatch(source, /provisional|concluded|Established|Growing/);
 });

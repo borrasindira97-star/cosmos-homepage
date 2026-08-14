@@ -82,7 +82,8 @@ export function buildVaultModel(app, rawSettings = {}, now = new Date()) {
   const source = app?.vault?.getMarkdownFiles?.() || [];
   const files = [];
   const tagCounts = new Map();
-  const tagPaths = new Map();
+  const tagModified = new Map();
+  const tagNotes = new Map();
   const folderCounts = new Map();
   const activities = new Map();
   const tasks = [];
@@ -105,24 +106,26 @@ export function buildVaultModel(app, rawSettings = {}, now = new Date()) {
     files.push(item);
     for (const tag of tags) {
       tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-      const previous = tagPaths.get(tag);
-      if (!previous || file.path.localeCompare(previous) < 0) tagPaths.set(tag, file.path);
+      tagModified.set(tag, Math.max(tagModified.get(tag) || 0, item.modified));
+      if (!tagNotes.has(tag)) tagNotes.set(tag, []);
+      tagNotes.get(tag).push(item);
     }
     folderCounts.set(folder, (folderCounts.get(folder) || 0) + 1);
     const day = localDay(created);
     if (day) {
       if (!activities.has(day)) activities.set(day, []);
-      if (activities.get(day).length < settings.activityLimit) activities.get(day).push(item);
+      activities.get(day).push(item);
     }
     tasks.push(...collectTasks(cache, file.path));
   }
 
   files.sort((a, b) => b.modified - a.modified || a.path.localeCompare(b.path));
   for (const items of activities.values()) items.sort((a, b) => b.created - a.created || a.path.localeCompare(b.path));
-  const rank = (map, limit, paths) => [...map.entries()]
+  for (const items of tagNotes.values()) items.sort((a, b) => b.modified - a.modified || a.path.localeCompare(b.path));
+  const rank = (map, limit) => [...map.entries()]
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .slice(0, limit)
-    .map(([name, count]) => ({ name, count, path: paths?.get(name) || "" }));
+    .map(([name, count]) => ({ name, count, lastModified: tagModified.get(name) || 0 }));
   const today = localDay(now);
   const weekStart = new Date(now);
   weekStart.setHours(0, 0, 0, 0);
@@ -137,13 +140,10 @@ export function buildVaultModel(app, rawSettings = {}, now = new Date()) {
     openTasks: tasks.length,
     recent: files.slice(0, settings.recentLimit),
     tasks: tasks.slice(0, 8),
-    tags: rank(tagCounts, 12, tagPaths),
+    tags: rank(tagCounts, 12),
     folders: rank(folderCounts, 8),
     activities,
-    systems: rank(tagCounts, 8, tagPaths).map((tag, index) => ({
-      ...tag,
-      notes: files.filter((file) => file.tags.includes(tag.name)).slice(0, 8),
-      status: index % 3 === 0 ? "provisional" : index % 3 === 1 ? "concluded" : "open",
-    })),
+    tagNotes,
+    systems: rank(tagCounts, 8),
   };
 }
